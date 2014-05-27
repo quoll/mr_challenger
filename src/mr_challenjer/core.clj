@@ -3,11 +3,11 @@
   a guessers win rate. "
   (:require [clojure.java.io :as io]))
 
-(def dictionary-file 
+(def dictionary-file
   "A file containing a word per line."
   "dictionary.txt")
 
-(def num-words 
+(def num-words
   "The number of words in the dictionary file."
   349900)
 
@@ -29,15 +29,15 @@
                                                  #{}
                                                  (repeatedly #(rand-int (inc num-words))))))]
     (with-open [rdr (io/reader dictionary-file)]
-      (doall 
-        (take amount 
-              (map second 
+      (doall
+        (take amount
+              (map second
                    (filter (comp line-nums first)
                            (map-indexed vector (line-seq rdr)))))))))
 
 
-(defn- apply-guess 
-  "Takes the word being guessed as a vector, the current word state, and the guess character. 
+(defn- apply-guess
+  "Takes the word being guessed as a vector, the current word state, and the guess character.
   Returns the word state updated with letters from a correct guess."
   [word-vec word-state guess]
   (map (fn [word-char state-char]
@@ -64,12 +64,15 @@
              new-guess-state (-> guess-state
                                  (assoc :word new-word-state)
                                  (update-in [:guesses] conj guess)
-                                 (#(if correct-guess? 
-                                     % 
+                                 (#(if correct-guess?
+                                     %
                                      (update-in % [:tries-left] dec))))]
-         (cond 
-           (= word-vec (:word guess-state)) {:result :win :word word :guess-state guess-state}
-           (= 0 (:tries-left guess-state)) {:result :lose :word word :guess-state guess-state}
+         (cond
+           (= word-vec (:word new-guess-state))
+           {:result :win :word word :guess-state new-guess-state}
+
+           (= 0 (:tries-left new-guess-state))
+           {:result :lose :word word :guess-state new-guess-state}
            :else
            (recur new-guess-state)))))))
 
