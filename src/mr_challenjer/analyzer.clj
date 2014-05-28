@@ -18,7 +18,7 @@
   e.g. => (map-word \"foo\")
   ([\\f \\_ \\_] [\\_ \\o \\o])"
   [word]
-  (letfn [(to-key [l] (map #(if (= l %) l \_) word))]
+  (letfn [(to-key [l] (apply str (map #(if (= l %) l \_) word)))]
     (map to-key (into #{} word))))
 
 (defn vector-word-map
@@ -51,15 +51,15 @@
 (defn to-keys
   "Converts a word guess into a seq of key vectors"
   [wordv]
-  (letfn [(to-key [l] (when-not (= \_ l) (map #(if (= % l) l \_) wordv)))]
-    (keep to-key wordv)))
+  (letfn [(to-key [l] (apply str (map #(if (= % l) l \_) wordv)))]
+    (keep to-key (disj (set wordv) \_))))
 
 (defn letter-ordering
   "Creates a seq of letters based on how frequently they appear in words
   of a given length. Only counts a word once per letter, no matter how
   many times the letter appears in the word."
   [words len]
-  (->> (filter #(= len (count %)) words)
+  (->> (filter #(= len (.length %)) words)
        (mapcat set)
        frequencies
        (sort-by second)
