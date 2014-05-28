@@ -64,10 +64,14 @@
                       :tries-left 8}]
      (loop [guess-state guess-state]
        (let [guess (guess-fn guess-state)
+             {:keys [guess extra-state]} (if (map? guess)
+                                           guess
+                                           {:guess guess})
              new-word-state (apply-guess word-vec (:word guess-state) guess)
              correct-guess? (not= new-word-state (:word guess-state))
              new-guess-state (-> guess-state
                                  (assoc :word new-word-state)
+                                 (assoc :extra-state extra-state)
                                  (update-in [:guesses] conj guess)
                                  (#(if correct-guess?
                                      %
