@@ -7,9 +7,14 @@
   "A file containing a word per line."
   "dictionary.txt")
 
+(defn count-lines [f]
+  (with-open [r (io/reader f)]
+    (count (line-seq r))))
+
 (def num-words
   "The number of words in the dictionary file."
-  349900)
+  (count-lines dictionary-file))
+(println num-words)
 
 (defn- random-word
   "Returns a random word from the dictionary file."
@@ -59,14 +64,10 @@
                       :tries-left 8}]
      (loop [guess-state guess-state]
        (let [guess (guess-fn guess-state)
-             {:keys [guess extra-state]} (if (map? guess)
-                                           guess
-                                           {:guess guess})
              new-word-state (apply-guess word-vec (:word guess-state) guess)
              correct-guess? (not= new-word-state (:word guess-state))
              new-guess-state (-> guess-state
                                  (assoc :word new-word-state)
-                                 (assoc :extra-state extra-state)
                                  (update-in [:guesses] conj guess)
                                  (#(if correct-guess?
                                      %
