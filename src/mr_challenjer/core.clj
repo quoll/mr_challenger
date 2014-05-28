@@ -14,7 +14,6 @@
 (def num-words
   "The number of words in the dictionary file."
   (count-lines dictionary-file))
-(println num-words)
 
 (defn- random-word
   "Returns a random word from the dictionary file."
@@ -28,7 +27,8 @@
 (defn- random-words
   "Returns multiple random words from the dictionary file."
   [amount]
-  (let [line-nums (first (drop-while #(< (count %) amount)
+  (let [amount (min amount num-words)
+        line-nums (first (drop-while #(< (count %) amount)
                                      (reductions (fn [uniq-nums num]
                                                    (conj uniq-nums num))
                                                  #{}
