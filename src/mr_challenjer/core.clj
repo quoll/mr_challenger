@@ -28,7 +28,7 @@
   "Returns multiple random words from the dictionary file."
   [amount]
   (let [amount (min amount num-words)
-        line-nums (first (drop-while #(< (count %) amount)
+        line-nums (first (drop-while #(<= (count %) amount)
                                      (reductions (fn [uniq-nums num]
                                                    (conj uniq-nums num))
                                                  #{}
