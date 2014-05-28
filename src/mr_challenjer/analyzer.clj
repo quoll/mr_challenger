@@ -2,9 +2,12 @@
   "Searches for the most likely words in Hangman by indexing the search space.
   Initial load time is slow, due to indexing the dictionary file."
   (:require [clojure.java.io :as io]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [clojure.edn :as edn])
+  (:import [java.io File PushbackReader]))
 
 (def dictionary-file "dictionary.txt")
+(def index-file "index.edn")
 (def dictionary-words
   "Eagerly loaded dictionary file"
   (with-open [rdr (io/reader dictionary-file)]
@@ -32,7 +35,18 @@
   [words]
   (apply merge-with into (map vector-word-map words)))
 
-(def word-map "Index of the entire dictionary" (map-words dictionary-words))
+(defn get-words
+  "Creates an index of words keyed by their vectors."
+  []
+  (if (.exists (File. index-file))
+    (with-open [rdr (PushbackReader. (io/reader index-file))]
+      (edn/read rdr))
+    (let [m (map-words dictionary-words)]
+      (do
+        (spit index-file m)
+        m))))
+
+(def word-map "Index of the entire dictionary" (get-words))
 
 (defn to-keys
   "Converts a word guess into a seq of key vectors"
